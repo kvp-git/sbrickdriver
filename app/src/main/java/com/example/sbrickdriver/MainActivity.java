@@ -50,6 +50,11 @@ public class MainActivity extends AppCompatActivity implements  BtLECallbacks
         Button bStop4 = findViewById(R.id.inputStop4);
 
         etAddress.setText(address);
+        tvStatus.setText(address);
+        sbSpeed1.setProgress(255);
+        sbSpeed2.setProgress(255);
+        sbSpeed3.setProgress(255);
+        sbSpeed4.setProgress(255);
         bSave.setOnClickListener(view ->
         {
             address = etAddress.getText().toString();
@@ -62,10 +67,11 @@ public class MainActivity extends AppCompatActivity implements  BtLECallbacks
         });
         bStop.setOnClickListener(view ->
         {
-            sbSpeed1.setProgress(0);
-            sbSpeed2.setProgress(0);
-            sbSpeed3.setProgress(0);
-            sbSpeed4.setProgress(0);
+            sbSpeed1.setProgress(255);
+            sbSpeed2.setProgress(255);
+            sbSpeed3.setProgress(255);
+            sbSpeed4.setProgress(255);
+            /*
             byte [] cmd = new byte[5];
             cmd[0] = 0x00;
             cmd[1] = 0x00;
@@ -73,13 +79,14 @@ public class MainActivity extends AppCompatActivity implements  BtLECallbacks
             cmd[3] = 0x02;
             cmd[4] = 0x03;
             btLE.writeCommand(cmd);
+            */
         });
         sbSpeed1.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
         {
             @Override
             public void onProgressChanged(SeekBar seekBar, int value, boolean isFromUser)
             {
-                speedCommand(0, value);
+                speedCommand(0, value - 255);
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar){}
@@ -91,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements  BtLECallbacks
             @Override
             public void onProgressChanged(SeekBar seekBar, int value, boolean isFromUser)
             {
-                speedCommand(1, value);
+                speedCommand(1, value - 255);
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar){}
@@ -103,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements  BtLECallbacks
             @Override
             public void onProgressChanged(SeekBar seekBar, int value, boolean isFromUser)
             {
-                speedCommand(2, value);
+                speedCommand(2, value - 255);
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar){}
@@ -115,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements  BtLECallbacks
             @Override
             public void onProgressChanged(SeekBar seekBar, int value, boolean isFromUser)
             {
-                speedCommand(3, value);
+                speedCommand(3, value - 255);
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar){}
@@ -123,13 +130,13 @@ public class MainActivity extends AppCompatActivity implements  BtLECallbacks
             public void onStopTrackingTouch(SeekBar seekBar){}
         });
         bStop1.setOnClickListener(view ->
-                sbSpeed1.setProgress(0));
+                sbSpeed1.setProgress(255));
         bStop2.setOnClickListener(view ->
-                sbSpeed2.setProgress(0));
+                sbSpeed2.setProgress(255));
         bStop3.setOnClickListener(view ->
-                sbSpeed3.setProgress(0));
+                sbSpeed3.setProgress(255));
         bStop4.setOnClickListener(view ->
-                sbSpeed4.setProgress(0));
+                sbSpeed4.setProgress(255));
 
         btLE = new BtLE(this, this);
         if(!address.isEmpty())

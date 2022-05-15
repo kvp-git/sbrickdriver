@@ -82,7 +82,7 @@ public class BtLE
             @Override
             public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status)
             {
-                Log.d("BtLE", "onCharacteristicRead(" + status + ")");
+                //Log.d("BtLE", "onCharacteristicRead(" + status + ")");
                 // TODO!!! status and error handling
                 btLECallbacks.readDone(status, characteristic.getValue());
             }
@@ -90,7 +90,7 @@ public class BtLE
             @Override
             public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status)
             {
-                Log.e("BtLE", "onCharacteristicWrite(" + status + ")");
+                //Log.e("BtLE", "onCharacteristicWrite(" + status + ")");
                 // TODO!!! status and error handling
                 btLECallbacks.writeDone(status);
             }
