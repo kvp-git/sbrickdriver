@@ -3,11 +3,10 @@ package com.example.sbrickdriver;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
-import android.bluetooth.le.ScanResult;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,6 +17,7 @@ public class MainActivity extends AppCompatActivity implements  BtLECallbacks
 {
     private BtLE btLE;
     private String address;
+    private byte[] speedTable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -28,6 +28,12 @@ public class MainActivity extends AppCompatActivity implements  BtLECallbacks
         if (checkSelfPermission(permissions[0]) != PackageManager.PERMISSION_GRANTED)
             requestPermissions(permissions, 0);
 
+        speedTable = new byte[1+4*3];
+        speedTable[0] = 0x01;
+        speedTable[1+0*3] = 0x00;
+        speedTable[1+1*3] = 0x01;
+        speedTable[1+2*3] = 0x02;
+        speedTable[1+3*3] = 0x03;
         address = getSharedPreferences("kvp", Context.MODE_PRIVATE)
                 .getString("address", "00:07:80:BD:15:76");
         Button bSave = findViewById(R.id.saveButton);
@@ -60,6 +66,13 @@ public class MainActivity extends AppCompatActivity implements  BtLECallbacks
             sbSpeed2.setProgress(0);
             sbSpeed3.setProgress(0);
             sbSpeed4.setProgress(0);
+            byte [] cmd = new byte[5];
+            cmd[0] = 0x00;
+            cmd[1] = 0x00;
+            cmd[2] = 0x01;
+            cmd[3] = 0x02;
+            cmd[4] = 0x03;
+            btLE.writeCommand(cmd);
         });
         sbSpeed1.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
         {
@@ -129,9 +142,10 @@ public class MainActivity extends AppCompatActivity implements  BtLECallbacks
         TextView tvStatus = findViewById(R.id.statusText);
         tvStatus.setText(address + " connected");
         byte[] cmd = new byte[2];
-        cmd[0] = 0x0d;
-        cmd[1] = 0x00;
+        cmd[0] = 0x0d; // watchdog timeout
+        cmd[1] = 50; // 5 seconds
         btLE.writeCommand(cmd);
+        sendSpeed();
     }
 
     @Override
@@ -153,18 +167,29 @@ public class MainActivity extends AppCompatActivity implements  BtLECallbacks
         // TODO!!!
     }
 
-    private void speedCommand(int channel, int value)
+    private synchronized void speedCommand(int channel, int value)
     {
         Log.e("Main", "speedCommand:" + channel + " " + value);
         byte direction = (byte)((value < 0) ? 1 : 0);
         byte speed = 0;
         if(value < 0) speed = (byte)(-value);
         if(value > 0) speed = (byte)(value);
+        speedTable[1+channel*3+1] = direction;
+        speedTable[1+channel*3+2] = speed;
+        /*
         byte [] cmd = new byte[4];
         cmd[0] = 0x01;
         cmd[1] = (byte)(channel);
         cmd[2] = direction;
         cmd[3] = speed;
         btLE.writeCommand(cmd);
+        */
+    }
+
+    private synchronized void sendSpeed()
+    {
+        if(btLE.isReady())
+            btLE.writeCommand(speedTable);
+        new Handler(getMainLooper()).postDelayed(() -> sendSpeed(), 100);
     }
 }
